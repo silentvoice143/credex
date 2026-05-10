@@ -50,9 +50,9 @@ export default function RootLayout({
 
 
             <main className="flex-1 overflow-y-auto">
-              <div className="mx-auto flex min-h-full w-full max-w-7xl flex-col">
-                {children}
-              </div>
+
+              {children}
+
             </main>
           </div>
         </TooltipProvider>

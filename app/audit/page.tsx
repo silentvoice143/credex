@@ -8,43 +8,121 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useCaseOptions } from '@/libs/constants/data'
+import { aiTools, useCaseOptions } from '@/libs/constants/data'
+import { useStore } from '@/libs/store'
 import { cn } from '@/libs/utils/utils'
+import { auditFormSchema, AuditFormValues } from '@/libs/validation/audit-form'
 import { Plus, ShieldCheck, Sparkles, Users, X } from 'lucide-react'
 import React, { useState } from 'react'
 
 
 
-const AuditFormPage = () => {
-    const [form, setForm] = useState({
-        teamSize: "",
-        useCase: ""
-    })
-    const [errors, setErrors] = useState<any>({
-        teamSize: "",
-        useCase: ""
-    })
-    const [tools, setTools] = useState([
-        {
-            id: crypto.randomUUID(),
-            name: "",
-            plan: "",
-            seats: "",
-            monthlySpend: "",
-        },
-    ]);
 
-    const handleChange = <K extends keyof typeof form>(
-        key: K,
-        value: (typeof form)[K]
-    ) => {
-        setForm((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
+const AuditFormPage = () => {
+    const {
+        form,
+        errors,
+        setErrors,
+        handleChange,
+        handleToolChange,
+        addTool,
+        removeTool,
+    } = useStore();
+    // const [form, setForm] = useState<AuditFormValues>({
+    //     teamSize: "",
+    //     useCase: "",
+    //     tools: [
+    //         {
+    //             id: crypto.randomUUID(),
+    //             name: "",
+    //             plan: "",
+    //             seats: "",
+    //             monthlySpend: "",
+    //         },
+    //     ],
+    // });
+
+    // const [errors, setErrors] = useState<any>({});
+
+    // const handleChange = <K extends keyof AuditFormValues>(
+    //     key: K,
+    //     value: AuditFormValues[K]
+    // ) => {
+    //     setForm((prev) => ({
+    //         ...prev,
+    //         [key]: value,
+    //     }));
+    // };
+
+    // const handleToolChange = (
+    //     index: number,
+    //     key: keyof AuditFormValues["tools"][0],
+    //     value: string
+    // ) => {
+    //     setForm((prev) => {
+    //         const updatedTools = [...prev.tools];
+
+    //         updatedTools[index] = {
+    //             ...updatedTools[index],
+    //             [key]: value,
+    //         };
+
+    //         return {
+    //             ...prev,
+    //             tools: updatedTools,
+    //         };
+    //     });
+    // };
+
+    // const addTool = () => {
+    //     setForm((prev) => ({
+    //         ...prev,
+    //         tools: [
+    //             ...prev.tools,
+    //             {
+    //                 id: crypto.randomUUID(),
+    //                 name: "",
+    //                 plan: "",
+    //                 seats: "",
+    //                 monthlySpend: "",
+    //             },
+    //         ],
+    //     }));
+    // };
+
+    // const removeTool = (index: number) => {
+    //     setForm((prev) => ({
+    //         ...prev,
+    //         tools: prev.tools.filter((_, i) => i !== index),
+    //     }));
+    // };
+
+    const validateForm = () => {
+        const result = auditFormSchema.safeParse(form);
+
+        if (result.success) {
+            setErrors({});
+            return true;
+        }
+
+        const fieldErrors = result.error.flatten();
+        console.log(fieldErrors, "-------errors");
+
+
+        setErrors(fieldErrors.fieldErrors);
+
+        return false;
+    };
+
+    const handleSubmit = () => {
+        const isValid = validateForm();
+
+        if (!isValid) return;
+
+        console.log(form);
     };
     return (
-        <div className='px-4 py-10'>
+        <div className='px-4 py-10 mx-auto max-w-7xl'>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold tracking-tight text-gray-900">
                     Audit Your AI Spend
@@ -77,10 +155,11 @@ const AuditFormPage = () => {
                                             leftIcon={<Users className="h-3.5 w-3.5 text-muted-foreground" />}
                                             type="number"
                                             placeholder="Enter the number of people"
-                                            value={form.teamSize}
                                             min={1}
+                                            value={form.teamSize}
                                             onChange={(e) => handleChange("teamSize", e.target.value)}
-                                            error={errors.teamSize}
+                                            error={errors.teamSize?.[0]}
+
                                         />
                                     </div>
 
@@ -96,6 +175,7 @@ const AuditFormPage = () => {
                                         label="Primary Use Case"
                                         labelClassName="text-xs font-medium text-gray-600"
                                         triggerClassName={cn(errors.useCase && "border-red-400 focus:ring-red-300")}
+                                        error={errors?.useCase}
                                     />
 
                                 </div>
@@ -116,7 +196,7 @@ const AuditFormPage = () => {
                                     variant="outline"
                                     size="sm"
                                     className="text-xs gap-1.5 h-8"
-                                // onClick={addTool}
+                                    onClick={addTool}
                                 >
                                     <Plus className="h-3.5 w-3.5" />
                                     Add Another Tool
@@ -124,7 +204,13 @@ const AuditFormPage = () => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            {tools.map((tool, idx) => {
+
+                            {errors?.tools && <div className='px-4 py-2 rounded-md border border-red-500 bg-red-100'>
+                                <p className='text-xs text-red-400'>{errors.tools[0]}</p></div>}
+                            {form.tools.map((tool, idx) => {
+                                const selectedTool = aiTools.find(
+                                    (t) => t.value === tool.name
+                                );
 
                                 return (
                                     <div
@@ -142,8 +228,8 @@ const AuditFormPage = () => {
                                                         variant="ghost"
                                                         size="icon"
                                                         className="h-7 w-7 text-gray-400 hover:text-red-500 hover:bg-red-50"
-                                                    // disabled={tools.length === 1}
-                                                    // onClick={() => removeTool(tool.id)}
+                                                        disabled={form.tools.length === 1}
+                                                        onClick={() => removeTool(idx)}
                                                     >
                                                         <X className="h-3.5 w-3.5" />
                                                     </Button>
@@ -154,10 +240,21 @@ const AuditFormPage = () => {
 
                                         <div className="grid grid-cols-2 gap-3 mb-6 max-sm:grid-cols-1">
                                             {/* Tool Name */}
-                                            <CustomSelect label='Tool Name' options={[{ label: "ChatGPT", value: "chatgpt" }]} />
+                                            <CustomSelect showSearch={false} label='Tool Name' options={aiTools.map((tool) => ({
+                                                label: tool.label,
+                                                value: tool.value,
+                                            }))}
+                                                selected={tool.name} onChange={(val) => {
+                                                    handleToolChange(idx, "name", val as string);
+                                                    handleToolChange(idx, "plan", "");
+                                                }} />
 
                                             {/* Plan */}
-                                            <CustomSelect label='Plan' options={[{ label: "Pro", value: "pro" }]} />
+                                            <CustomSelect showSearch={false} label='Plan' options={selectedTool?.plans.map((plan) => ({
+                                                label: plan.label,
+                                                value: plan.value,
+                                            })) || []}
+                                                selected={tool.plan} onChange={val => { handleToolChange(idx, "plan", val as string) }} />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
@@ -168,7 +265,12 @@ const AuditFormPage = () => {
                                                 </Label>
                                                 <div className="relative">
 
-                                                    <Input type='number' placeholder='e.g. 45' className="" title="Number of seats" />
+                                                    <Input type='number' placeholder='e.g. 45' className="" title="Number of seats"
+                                                        value={tool.seats}
+                                                        onChange={(e) =>
+                                                            handleToolChange(idx, "seats", e.target.value)
+                                                        }
+                                                    />
                                                 </div>
 
                                             </div>
@@ -177,11 +279,17 @@ const AuditFormPage = () => {
                                             {/* Monthly Spend */}
                                             <div className="space-y-1">
                                                 <Label className="text-xs font-medium text-gray-600">
-                                                    Monthly spend
+                                                    Monthly spend <span className="text-xs text-muted-foreground">(in USD)</span>
                                                 </Label>
                                                 <div className="relative">
 
-                                                    <Input type='number' placeholder='Monthly Spend' className="" title="Monthly Spend" />
+                                                    <Input type='number' placeholder='Monthly Spend' className="" title="Monthly Spend"
+                                                        value={tool.monthlySpend}
+                                                        onChange={(e) =>
+                                                            handleToolChange(idx, "monthlySpend", e.target.value)
+                                                        }
+
+                                                    />
                                                 </div>
 
                                             </div>
@@ -194,7 +302,7 @@ const AuditFormPage = () => {
                             {/* Add Tool Button */}
                             <button
                                 type="button"
-                                // onClick={addTool}
+                                onClick={addTool}
                                 className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-2 text-sm text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/40 transition-all"
                             >
                                 <Plus className="h-4 w-4" />
@@ -203,7 +311,7 @@ const AuditFormPage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                <div className="relative">
+                {/* <div className="relative">
                     <Card className="bg-gray-900 border-gray-800 text-white shadow-xl md:w-100 w-full">
                         <CardHeader className="pb-3">
                             <CardTitle className="flex items-center gap-2 text-base text-white">
@@ -219,7 +327,7 @@ const AuditFormPage = () => {
                             <div className="flex items-center justify-between">
                                 <span className="text-xs text-gray-400">Projected Annual</span>
                                 <span className="text-sm font-medium text-gray-200">
-                                    {/* {fmt(audit.projectedAnnual)} */}
+
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
@@ -234,13 +342,13 @@ const AuditFormPage = () => {
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Total Monthly Commitment</p>
                                 <p className="text-4xl font-mono font-medium tracking-tight text-white">
-                                    {/* {fmt(audit.totalMonthly)} */}
+
                                 </p>
                             </div>
                         </CardContent>
 
                     </Card>
-                </div>
+                </div> */}
 
             </div>
             <Separator className="my-6" />
@@ -250,7 +358,7 @@ const AuditFormPage = () => {
                     <span>Your data is secure and protected.</span>
                 </div>
 
-                <Button className="min-w-48 w-full sm:w-fit h-12">
+                <Button onClick={handleSubmit} className="min-w-48 w-full sm:w-fit h-12">
                     Generate Report
                 </Button>
             </div>
