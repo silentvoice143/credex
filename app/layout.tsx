@@ -49,7 +49,7 @@ export default function RootLayout({
             </header>
 
 
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 flex flex-col overflow-y-auto h-full">
 
               {children}
 

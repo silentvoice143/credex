@@ -13,12 +13,15 @@ import { useStore } from '@/libs/store'
 import { cn } from '@/libs/utils/utils'
 import { auditFormSchema, AuditFormValues } from '@/libs/validation/audit-form'
 import { Plus, ShieldCheck, Sparkles, Users, X } from 'lucide-react'
+import { nanoid } from 'nanoid'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 
 
 
 const AuditFormPage = () => {
+    const router = useRouter();
     const {
         form,
         errors,
@@ -28,74 +31,7 @@ const AuditFormPage = () => {
         addTool,
         removeTool,
     } = useStore();
-    // const [form, setForm] = useState<AuditFormValues>({
-    //     teamSize: "",
-    //     useCase: "",
-    //     tools: [
-    //         {
-    //             id: crypto.randomUUID(),
-    //             name: "",
-    //             plan: "",
-    //             seats: "",
-    //             monthlySpend: "",
-    //         },
-    //     ],
-    // });
 
-    // const [errors, setErrors] = useState<any>({});
-
-    // const handleChange = <K extends keyof AuditFormValues>(
-    //     key: K,
-    //     value: AuditFormValues[K]
-    // ) => {
-    //     setForm((prev) => ({
-    //         ...prev,
-    //         [key]: value,
-    //     }));
-    // };
-
-    // const handleToolChange = (
-    //     index: number,
-    //     key: keyof AuditFormValues["tools"][0],
-    //     value: string
-    // ) => {
-    //     setForm((prev) => {
-    //         const updatedTools = [...prev.tools];
-
-    //         updatedTools[index] = {
-    //             ...updatedTools[index],
-    //             [key]: value,
-    //         };
-
-    //         return {
-    //             ...prev,
-    //             tools: updatedTools,
-    //         };
-    //     });
-    // };
-
-    // const addTool = () => {
-    //     setForm((prev) => ({
-    //         ...prev,
-    //         tools: [
-    //             ...prev.tools,
-    //             {
-    //                 id: crypto.randomUUID(),
-    //                 name: "",
-    //                 plan: "",
-    //                 seats: "",
-    //                 monthlySpend: "",
-    //             },
-    //         ],
-    //     }));
-    // };
-
-    // const removeTool = (index: number) => {
-    //     setForm((prev) => ({
-    //         ...prev,
-    //         tools: prev.tools.filter((_, i) => i !== index),
-    //     }));
-    // };
 
     const validateForm = () => {
         const result = auditFormSchema.safeParse(form);
@@ -119,10 +55,14 @@ const AuditFormPage = () => {
 
         if (!isValid) return;
 
-        console.log(form);
+        router.push(`/report/${slug}`);
     };
+
+    const slug = nanoid(10);
+
+    const reportLink = `http://localhost:3000/report/${slug}`;
     return (
-        <div className='px-4 py-10 mx-auto max-w-7xl'>
+        <div className='px-4 py-10 mx-auto max-w-7xl w-full'>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold tracking-tight text-gray-900">
                     Audit Your AI Spend
