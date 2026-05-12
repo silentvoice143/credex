@@ -1,7 +1,9 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useParams } from "next/navigation";
+import { useStore } from "@/libs/store";
 
 const data = {
     success: true,
@@ -76,30 +78,29 @@ const fmt = (n: number) =>
 const AuditReport = () => {
     const { report } = data;
     const [hovered, setHovered] = useState<number | null>(null);
+    const params = useParams();
+    const { form } = useStore()
+    console.log(params, "---params")
 
     const savingsPct = Math.round(
         (report.estimatedMonthlySavings / report.totalMonthlySpend) * 100
     );
 
-    const downloadPDF = async () => {
-        const element = document.getElementById("audit-report");
-        if (!element) return;
+    const generateReport = async () => {
+        try {
+            const payload = {
+                slug: params?.slug,
+                ...form
+            }
+            console.log(payload, "--payload")
+        } catch (err) {
 
-        const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#0B0F19",
-            logging: false,
-        });
+        }
+    }
 
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save("ai-spend-audit-report.pdf");
-    };
+    useEffect(() => {
+        generateReport();
+    }, [])
 
     return (
         <div id="audit-report" className="overflow-x-hidden relative pdf-bg-white" style={{ backgroundColor: "#0B0F19", color: "#e2e8f0" }} >

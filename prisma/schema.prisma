@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AuditReport {
+  id                      String   @id @default(cuid())
+
+  slug                    String   @unique
+
+  teamSize                String?
+  useCase                 String?
+
+  totalMonthlySpend       Float    @default(0)
+  projectedAnnualSpend    Float    @default(0)
+
+  estimatedMonthlySavings Float    @default(0)
+  estimatedAnnualSavings  Float    @default(0)
+
+  recommendations         Json
+
+  aiSummary               String?
+
+  rawPayload              Json
+  report                  Json
+
+  createdAt               DateTime @default(now())
+}
