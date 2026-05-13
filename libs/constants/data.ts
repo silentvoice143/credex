@@ -102,3 +102,57 @@ export const aiTools = [
         ],
     },
 ];
+
+export const toolIcons: Record<string, string> = {
+    ChatGPT: "⬡",
+    Claude: "✦",
+    Perplexity: "◎",
+    "GitHub Copilot": "⌁",
+    Cursor: "▣",
+    Midjourney: "◈",
+};
+
+export const toolColors: Record<
+    string,
+    {
+        bg: string;
+        border: string;
+        badgeColor: string;
+    }
+> = {
+    ChatGPT: {
+        bg: "rgba(52, 211, 153, 0.08)",
+        border: "rgba(52, 211, 153, 0.25)",
+        badgeColor: "#34d399",
+    },
+
+    Claude: {
+        bg: "rgba(250, 204, 21, 0.08)",
+        border: "rgba(250, 204, 21, 0.25)",
+        badgeColor: "#facc15",
+    },
+
+    Perplexity: {
+        bg: "rgba(59, 130, 246, 0.08)",
+        border: "rgba(59, 130, 246, 0.25)",
+        badgeColor: "#60a5fa",
+    },
+
+    "GitHub Copilot": {
+        bg: "rgba(167, 139, 250, 0.08)",
+        border: "rgba(167, 139, 250, 0.25)",
+        badgeColor: "#a78bfa",
+    },
+
+    "Cursor": {
+        bg: "rgba(251, 146, 60, 0.08)",
+        border: "rgba(251, 146, 60, 0.25)",
+        badgeColor: "#fb923c",
+    },
+
+    midjourney: {
+        bg: "rgba(236, 72, 153, 0.08)",
+        border: "rgba(236, 72, 153, 0.25)",
+        badgeColor: "#ec4899",
+    },
+};

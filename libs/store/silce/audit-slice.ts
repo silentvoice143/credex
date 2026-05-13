@@ -19,6 +19,8 @@ const initialForm: AuditFormValues = {
 
 export interface AuditSlice {
     form: AuditFormValues;
+    report: any;
+    setReport: (report: any) => void;
 
     errors: Record<string, any>;
 
@@ -44,7 +46,11 @@ export interface AuditSlice {
 
 export const createAuditSlice: StateCreator<AuditSlice> = (set) => ({
     form: initialForm,
-
+    report: null,
+    setReport: (report) =>
+        set({
+            report,
+        }),
     errors: {},
 
     setErrors: (errors) =>
@@ -92,6 +98,8 @@ export const createAuditSlice: StateCreator<AuditSlice> = (set) => ({
                 tools: state.form.tools.filter((_, i) => i !== index),
             },
         })),
+
+
 
     resetForm: () =>
         set({

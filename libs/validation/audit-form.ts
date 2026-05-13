@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const toolSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     name: z.string().min(1, "Tool name is required"),
     plan: z.string().min(1, "Plan is required"),
     seats: z.string().min(1, "Seats are required"),

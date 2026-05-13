@@ -16,6 +16,7 @@ export const useStore = create<Store>()(
       // ⚠️ Persist only what you need
       partialize: (state) => ({
         form: state.form,
+        report: state.report
       }),
     },
   ),

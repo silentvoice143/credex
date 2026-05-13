@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { createAuditReport } from '@/libs/api/audit.service'
 import { aiTools, useCaseOptions } from '@/libs/constants/data'
 import { useStore } from '@/libs/store'
 import { cn } from '@/libs/utils/utils'
@@ -15,7 +16,8 @@ import { auditFormSchema, AuditFormValues } from '@/libs/validation/audit-form'
 import { Plus, ShieldCheck, Sparkles, Users, X } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+
 
 
 const AuditFormPage = () => {
@@ -28,6 +30,7 @@ const AuditFormPage = () => {
         handleToolChange,
         addTool,
         removeTool,
+        resetForm, setReport
     } = useStore();
 
 
@@ -48,17 +51,70 @@ const AuditFormPage = () => {
         return false;
     };
 
+    const [loading, setLoading] = useState(false);
+
+
+    const generateReport = async () => {
+        const slug = nanoid(10);
+
+        try {
+            setLoading(true);
+
+            const payload = {
+                slug: slug as string,
+
+                teamSize: form.teamSize,
+
+                useCase: form.useCase,
+
+                tools: form.tools.map((tool) => ({
+                    name: tool.name,
+                    plan: tool.plan,
+
+                    seats: tool.seats,
+
+                    monthlySpend:
+                        tool.monthlySpend,
+
+                })),
+            };
+
+
+            console.log(payload, "--payload");
+
+            const res = await createAuditReport(payload);
+            console.log(res, "---response")
+
+            if (res.success) {
+                // setReport(res.report);
+
+                console.log(
+                    res.report,
+                    "--generated report",
+                );
+                router.push(`/report/${slug}`);
+                resetForm()
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
     const handleSubmit = () => {
         const isValid = validateForm();
 
         if (!isValid) return;
+        generateReport()
 
-        router.push(`/report/${slug}`);
     };
 
-    const slug = nanoid(10);
 
-    const reportLink = `http://localhost:3000/report/${slug}`;
+
+
     return (
         <div className='px-4 py-10 mx-auto max-w-7xl w-full'>
             <div className="mb-6">
@@ -296,8 +352,8 @@ const AuditFormPage = () => {
                     <span>Your data is secure and protected.</span>
                 </div>
 
-                <Button onClick={handleSubmit} className="min-w-48 w-full sm:w-fit h-12">
-                    Generate Report
+                <Button disabled={loading} onClick={handleSubmit} className="min-w-48 w-full sm:w-fit h-12">
+                    {loading ? "Generating..." : "Generate Report"}
                 </Button>
             </div>
         </div>
