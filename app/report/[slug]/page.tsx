@@ -210,7 +210,7 @@ const AuditReport = () => {
                     </h2>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                        {report?.recommendations?.map((rec, i) => {
+                        {report?.recommendations?.map((rec: any, i: number) => {
                             const color = toolColors[rec?.tool];
                             const isHovered = hovered === i;
 
